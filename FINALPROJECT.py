@@ -64,6 +64,11 @@ class DOMINO_GAME:
             return
         self.place_tile(tile)
         self.player.remove(tile)
+
+        if len(self.player) == 0:
+            self.turn = "PLAYER WINS"
+            self.update_game()
+            return
         self.turn = "NPCs Turn"
 
         self.update_game()
@@ -76,6 +81,7 @@ class DOMINO_GAME:
 
     def npc_turn(self):             #OJO: The npc is dumb for now
                                     #UPDATE BRO IS NOT DUMB ANYMORE: DO NOT CHANGE THIS FUNCTION ITS ALREADY WORKING
+                                    #NEVERMINDD HAHAHAHAHHA
         played = False
         for tile in self.npc:
             if self.can_play(tile):
@@ -127,6 +133,12 @@ class DOMINO_GAME:
             self.board.insert(0,(x,y))
         elif x == left_side:
             self.board.insert(0,(y,x))
+#THIS IS WHERE THE DRAWING LOGISTICS START
+    def has_playable_tile(self, hand):
+        for tile in hand:
+            if self.can_play(tile):
+                return True
+        return False
 
 
 def main(page: ft.Page):
