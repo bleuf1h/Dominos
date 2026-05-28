@@ -1,5 +1,8 @@
 import flet as ft
 import random
+#-----------------------------------------------------------------------------
+#CONTROLS INSIDE A CLASS (CONTROLS)
+#AUDIO AND IMAGES (COMING SOON)
 
 class DOMINO_GAME:
     def __init__(self, page):
@@ -12,6 +15,8 @@ class DOMINO_GAME:
         self.board_text = ft.Text(size=25)
         self.npc_text = ft.Text(size=18)
         self.player_row = ft.Row()
+        self.draw_button = ft.ElevatedButton ("Draw Tile", on_click= self.draw_tile) # Draw Tile Button OFC
+
         self.start_game()
 #-----------------------------------------------------------------------------
 #DEVELOPING THE ACTUAL COMPONENTS OF THE GAME(FUNCTIONS)
@@ -52,7 +57,8 @@ class DOMINO_GAME:
             self.player_status,
             self.npc_text,
             self.board_text,
-            self.player_row
+            self.player_row,
+            self.draw_button
         )
         self.page.update()
 #-----------------------------------------------------------------------------
@@ -62,15 +68,21 @@ class DOMINO_GAME:
             self.player_status.value = "Invalid Move"
             self.update_game()
             return
+        
         self.place_tile(tile)
         self.player.remove(tile)
 
-        if len(self.player) == 0:
-            self.turn = "PLAYER WINS"
+        if len(self.player) == 0: 
+            self.turn = "Player Wins!!!" #Added winning conditionals
             self.update_game()
             return
-        self.turn = "NPCs Turn"
 
+        if len(self.npc) == 0: 
+            self.turn = "NPC Wins!!! You loose!!!"
+            self.update_game()
+            return
+        
+        self.turn = "NPCs Turn"
         self.update_game()
         self.npc_turn()
     
@@ -82,6 +94,7 @@ class DOMINO_GAME:
     def npc_turn(self):             #OJO: The npc is dumb for now
                                     #UPDATE BRO IS NOT DUMB ANYMORE: DO NOT CHANGE THIS FUNCTION ITS ALREADY WORKING
                                     #NEVERMINDD HAHAHAHAHHA
+                                    #NPC IS NOT DUMB ANYMORE, HOWEVER IT'S PASSING FOREVER
         played = False
         for tile in self.npc:
             if self.can_play(tile):
@@ -133,13 +146,32 @@ class DOMINO_GAME:
             self.board.insert(0,(x,y))
         elif x == left_side:
             self.board.insert(0,(y,x))
-#THIS IS WHERE THE DRAWING LOGISTICS START
+
+#-----------------------------------------------------------------------------
+#THIS IS WHERE THE DRAWING LOGISTICS START (WE ARE STILL IN FUNCTIONS)
     def has_playable_tile(self, hand):
         for tile in hand:
             if self.can_play(tile):
                 return True
         return False
+   
+    def draw_tile (self, e): #Tells you if you need to draw a tile basically
+        if self.has_playable_tile(self.player):
+            self.player_status.value = "You already have a playable tile :)" #Playable Tile
+            self.update_game()
+            return
+        
+        #Empty Deck
+        if len(self.deck) == 0:
+            self.player_status.value = "Deck is empty."
+            self.update_game ()
+            return
 
+        drawn_tile = self.deck.pop() 
+        self.player.append(drawn_tile)
+        self.update_game ()
+
+        self.player_status.value = f"You Drew {drawn_tile}"
 
 def main(page: ft.Page):
     DOMINO_GAME(page)
