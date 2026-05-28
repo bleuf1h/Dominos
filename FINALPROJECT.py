@@ -58,11 +58,15 @@ class DOMINO_GAME:
 #-----------------------------------------------------------------------------
 #PLAYING DYNAMICS START HERE
     def play_tile(self, tile):
-        self.board.append(tile)
+        if not self.can_play(tile):
+            self.player_status.value = "Invalid Move"
+            self.update_game()
+            return
+        self.place_tile(tile)
         self.player.remove(tile)
         self.turn = "NPCs Turn"
-        self.update_game()
 
+        self.update_game()
         self.npc_turn()
     
     def create_click(self, tile):
@@ -70,18 +74,59 @@ class DOMINO_GAME:
             self.play_tile(tile)
         return click
 
-    def npc_turn(self):             #OJO: The npc is dumb for now 
-                                    #polque yo todavia no le he puesto lo game mechanics so bro is just playing the first tile he sees
-        if len(self.npc) > 0:
-            npc_tile = self.npc[0]
-            self.board.append(npc_tile)
-            self.npc.remove(npc_tile)
-        
-        self.turn = "Player Turn"
+    def npc_turn(self):             #OJO: The npc is dumb for now
+                                    #UPDATE BRO IS NOT DUMB ANYMORE: DO NOT CHANGE THIS FUNCTION ITS ALREADY WORKING
+        played = False
+        for tile in self.npc:
+            if self.can_play(tile):
+                self.place_tile(tile)
+                self.npc.remove(tile)
+                played = True
+
+                break
+        if played:
+            self.turn = "Player Turn"
+        else:
+            self.turn = "NPC Passed"
         self.update_game()
     
-    def can_play(self):
-        pass
+    def can_play(self, tile):          #This variable is mainly so that the npc can follow the main game mechanics and not just put the first tile it sees.
+        if len(self.board) == 0:
+            return True
+        
+        left_side = self.board[0][0]
+        right_side = self.board[-1][1]
+        x = tile[0]
+        y = tile[1]
+
+        if (
+            x == left_side or 
+            y == left_side or 
+            x == right_side or 
+            y == right_side
+        ):
+            return True
+        return False
+    
+    def place_tile(self, tile):
+        if len(self.board) == 0:
+            self.board.append(tile)
+            return
+        left_side = self.board[0][0]
+        right_side = self.board[-1][1]
+
+        x = tile[0]
+        y = tile[1]
+
+        if x == right_side:
+            self.board.append((x,y))
+        elif y == right_side:
+            self.board.append((y,x))
+        elif y == left_side:
+            #SO for the left side I put zero at the start of the thingy so that it puts it at the START of the list.
+            self.board.insert(0,(x,y))
+        elif x == left_side:
+            self.board.insert(0,(y,x))
 
 
 def main(page: ft.Page):
