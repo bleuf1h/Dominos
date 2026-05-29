@@ -271,4 +271,4 @@ class DOMINO_GAME:
 
 def main(page: ft.Page):
     DOMINO_GAME(page)
-ft.app(target=main,  assets_dir="assets")
+ft.run(main=main,  assets_dir="assets")
