@@ -1,8 +1,8 @@
 import flet as ft
+import flet_audio as fta
 import random
 #-----------------------------------------------------------------------------
 #CONTROLS INSIDE A CLASS (CONTROLS)
-#AUDIO AND IMAGES (COMING SOON)
 
 class DOMINO_GAME:
     def __init__(self, page):
@@ -16,8 +16,94 @@ class DOMINO_GAME:
         self.npc_text = ft.Text(size=18)
         self.player_row = ft.Row()
         self.draw_button = ft.ElevatedButton ("Draw Tile", on_click= self.draw_tile) # Draw Tile Button OFC
+        self.start_button = ft.ElevatedButton ("START")
 
+#-----------------------------------------------------------------------------
+#AUDIO AND IMAGES (CONTROLS)
+        self.audio_player = fta.Audio (src = "audio/Main Menu.mp3", autoplay=True)
+        self.front_page = ft.Image(src= "assets/images/frontpage.webp")
+
+#-----------------------------------------------------------------------------
+#WELCOME PAGE (PAGE SETUP)
+        self.welcome()
+
+    def start_button_click(self, e):
         self.start_game()
+
+    def welcome(self):
+            self.page.controls.clear()
+
+            title = ft.Text(
+                "DOMINOES",
+                size=40,
+                weight=ft.FontWeight.BOLD
+            )
+
+            subtitle = ft.Text(
+                "Player vs NPC",
+                size=20
+            )
+
+            start_button = ft.ElevatedButton(
+                "START GAME",
+                on_click=self.start_button_click,
+                width=200,
+                height=50
+            )
+
+            self.page.add(
+                ft.Column(
+                    [
+                        self.front_page,
+                        title,
+                        subtitle,
+                        start_button
+                    ],
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    expand=True
+                )
+            )
+
+            self.page.update()
+
+#-----------------------------------------------------------------------------
+#WINLOSS SCREEN (PAGE SET UP)
+    def win_screen (self): #WINNER SIDE 
+
+        self.audio_player.src = "audio/IJUSTHITTHEJACKPOT.m4a"
+        win_image = ft.Image(src="images/feels-the-aura.png", width=400)
+
+        self.page.controls.clear() 
+        self.page.add(ft.Column(
+                [ft.Text("PLAYER WINS!",
+                        size=40,
+                        weight=ft.FontWeight.BOLD),
+
+                    win_image,
+                ],
+                alignment=ft.MainAxisAlignment.CENTER,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                expand=True
+            ))
+        self.page.update ()
+
+    def loser_screen (self): #LOSER SIDE (Take the L)
+        self.page.controls.clear() 
+        self.audio_player.src = "audio/LOSER.m4a"
+        lose_image = ft.Image(src="images/unfeels_the_aura.png", width=400)
+        self.page.add(ft.Column(
+                [ft.Text("NPC WINS! YOU LOSE!",
+                        size=40,
+                        weight=ft.FontWeight.BOLD),
+
+                    lose_image,
+                ],
+                alignment=ft.MainAxisAlignment.CENTER,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                expand=True
+            ))
+        self.page.update ()
 #-----------------------------------------------------------------------------
 #DEVELOPING THE ACTUAL COMPONENTS OF THE GAME(FUNCTIONS)
     def create_domino_tiles(self): 
@@ -52,7 +138,7 @@ class DOMINO_GAME:
 
         self.page.controls.clear()  #Removes EVERYTHING from the page
         self.page.add(
-            ft.Text("Domino", size=40, weight=ft.FontWeight.W_200),
+            ft.Text("DOMINO", size=40, weight=ft.FontWeight.BOLD),
             self.turn_counter,
             self.player_status,
             self.npc_text,
@@ -62,7 +148,7 @@ class DOMINO_GAME:
         )
         self.page.update()
 #-----------------------------------------------------------------------------
-#PLAYING DYNAMICS START HERE
+#PLAYING DYNAMICS START HERE (FUNCTIONS)
     def play_tile(self, tile):
         if not self.can_play(tile):
             self.player_status.value = "Invalid Move"
@@ -74,12 +160,12 @@ class DOMINO_GAME:
 
         if len(self.player) == 0: 
             self.turn = "Player Wins!!!" #Added winning conditionals
-            self.update_game()
+            self.win_screen()
             return
 
         if len(self.npc) == 0: 
-            self.turn = "NPC Wins!!! You loose!!!"
-            self.update_game()
+            self.turn = "NPC Wins!!! You lose!!!"
+            self.loser_screen()
             return
         
         self.turn = "NPCs Turn"
@@ -91,23 +177,28 @@ class DOMINO_GAME:
             self.play_tile(tile)
         return click
 
-    def npc_turn(self):             #OJO: The npc is dumb for now
+    def npc_turn(self):             #OJO: The npc is dumb for now 
                                     #UPDATE BRO IS NOT DUMB ANYMORE: DO NOT CHANGE THIS FUNCTION ITS ALREADY WORKING
                                     #NEVERMINDD HAHAHAHAHHA
-                                    #NPC IS NOT DUMB ANYMORE, HOWEVER IT'S PASSING FOREVER
-        played = False
+                                    #NPC IS NOT DUMB ANYMORE, HOWEVER IT'S PASSING FOREVER#OJO: The npc is dumb for now
+        while not self.has_playable_tile(self.npc) and len(self.deck) > 0: #FIXED this so its draws the tile properly
+            drawn_tile = self.deck.pop()
+            self.npc.append(drawn_tile)
+
         for tile in self.npc:
             if self.can_play(tile):
                 self.place_tile(tile)
                 self.npc.remove(tile)
-                played = True
 
-                break
-        if played:
-            self.turn = "Player Turn"
-        else:
-            self.turn = "NPC Passed"
-        self.update_game()
+                # WIN CONDITION
+                if len(self.npc) == 0:
+                    self.turn = "NPC Wins!!!"
+                else:
+                    self.turn = "Player Turn"
+
+                self.update_game()
+                return
+
     
     def can_play(self, tile):          #This variable is mainly so that the npc can follow the main game mechanics and not just put the first tile it sees.
         if len(self.board) == 0:
@@ -173,6 +264,10 @@ class DOMINO_GAME:
 
         self.player_status.value = f"You Drew {drawn_tile}"
 
+
+#-----------------------------------------------------------------------------
+#PAGE
+
 def main(page: ft.Page):
     DOMINO_GAME(page)
-ft.app(target=main)
+ft.app(target=main,  assets_dir="assets")
