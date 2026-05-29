@@ -157,13 +157,11 @@ class DOMINO_GAME:
         self.place_tile(tile)
         self.player.remove(tile)
 
-        if len(self.player) == 0: 
-            self.turn = "Player Wins!!!" #Added winning conditionals
+        if len(self.player) == 0: #Added winning conditionals
             self.win_screen()
             return
 
         if len(self.npc) == 0: 
-            self.turn = "NPC Wins!!! You lose!!!"
             self.loser_screen()
             return
         
