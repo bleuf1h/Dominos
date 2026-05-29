@@ -15,8 +15,7 @@ class DOMINO_GAME:
         self.board_text = ft.Text(size=25)
         self.npc_text = ft.Text(size=18)
         self.player_row = ft.Row()
-        self.draw_button = ft.ElevatedButton ("Draw Tile", on_click= self.draw_tile) # Draw Tile Button OFC
-        self.start_button = ft.ElevatedButton ("START")
+        self.draw_button = ft.ElevatedButton ("Draw Tile", on_click= self.draw_tile)
 
 #-----------------------------------------------------------------------------
 #AUDIO AND IMAGES (CONTROLS)
@@ -182,8 +181,11 @@ class DOMINO_GAME:
                                     #NEVERMINDD HAHAHAHAHHA
                                     #NPC IS NOT DUMB ANYMORE, HOWEVER IT'S PASSING FOREVER#OJO: The npc is dumb for now
         while not self.has_playable_tile(self.npc) and len(self.deck) > 0: #FIXED this so its draws the tile properly
-            drawn_tile = self.deck.pop()
-            self.npc.append(drawn_tile)
+            try:
+                drawn_tile = self.deck.pop()
+                self.npc.append(drawn_tile)
+            except IndexError:
+                self.player_status.value = "No tiles in deck."
 
         for tile in self.npc:
             if self.can_play(tile):
@@ -263,7 +265,8 @@ class DOMINO_GAME:
         self.update_game ()
 
         self.player_status.value = f"You Drew {drawn_tile}"
-
+#-----------------------------------------------------------------------------
+#MAKE IT GORGEOUS (PAGE SETUP)
 
 #-----------------------------------------------------------------------------
 #PAGE
